@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔒 SECRET INTEL | مركز العمليات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Cairo,sans-serif;background:#000;color:#00ff41;overflow-x:hidden;min-height:100vh}
+
+/* ===== شاشة الدخول ===== */
+#loginScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#000,#0a1a0a,#000);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+#loginScreen.hidden{display:none}
+.login-box{background:rgba(0,20,0,.9);border:2px solid #00ff41;border-radius:15px;padding:40px 30px;max-width:400px;width:100%;box-shadow:0 0 50px rgba(0,255,65,.5);position:relative;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#00ff41,transparent);animation:scan 3s linear infinite}
+@keyframes scan{0%{left:-100%}100%{left:100%}}
+.login-box h1{text-align:center;font-family:'Share Tech Mono',monospace;color:#00ff41;margin-bottom:10px;font-size:1.5rem;letter-spacing:3px}
+.login-box p{text-align:center;color:#00aa2a;font-size:.85rem;margin-bottom:25px;font-family:'Share Tech Mono',monospace}
+.lock-icon{font-size:3rem;text-align:center;margin-bottom:15px;animation:lockPulse 2s ease-in-out infinite}
+@keyframes lockPulse{0%,100%{text-shadow:0 0 20px #00ff41}50%{text-shadow:0 0 40px #00ff41,0 0 60px #00ff41}}
+.pass-input{width:100%;padding:14px 18px;background:#001a00;border:2px solid #00aa2a;border-radius:10px;color:#00ff41;font-family:'Share Tech Mono',monospace;font-size:1rem;outline:none;margin-bottom:15px;text-align:center;letter-spacing:2px}
+.pass-input:focus{border-color:#00ff41;box-shadow:0 0 20px rgba(0,255,65,.5)}
+.enter-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00aa2a,#00ff41);color:#000;border:none;border-radius:10px;font-family:inherit;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:2px}
+.enter-btn:hover{box-shadow:0 0 30px rgba(0,255,65,.8)}
+.error-msg{color:#ff0000;text-align:center;font-size:.85rem;margin-top:10px;display:none}
+.error-msg.show{display:block;animation:shake .5s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+
+/* ===== الواجهة الرئيسية ===== */
+#mainScreen{display:none;padding:15px}
+#mainScreen.show{display:block}
+
+.intel-header{background:linear-gradient(90deg,#001a00,#002800,#001a00);border:2px solid #00ff41;border-radius:12px;padding:15px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 0 30px rgba(0,255,65,.3)}
+.intel-title{font-family:'Share Tech Mono',monospace;color:#00ff41;font-size:1.2rem;letter-spacing:2px}
+.intel-title small{display:block;color:#00aa2a;font-size:.7rem;margin-top:3px;letter-spacing:1px}
+.status-bar{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:#00ff41}
+.dot-live{width:8px;height:8px;background:#00ff41;border-radius:50%;animation:blink 1s infinite;box-shadow:0 0 10px #00ff41}
+@keyframes blink{50%{opacity:.3}}
+.logout-btn{background:rgba(255,0,0,.2);border:1px solid #ff0000;color:#ff0000;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:.8rem;cursor:pointer;font-weight:700}
+
+/* شريط الحالة السفلي */
+.ticker{background:#001a00;border:1px solid #00aa2a;border-radius:8px;padding:8px 15px;margin-bottom:15px;overflow:hidden;font-family:'Share Tech Mono',monospace;font-size:.85rem;color:#00ff41;white-space:nowrap}
+.ticker-content{display:inline-block;animation:ticker 30s linear infinite}
+@keyframes ticker{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* الفلاتر */
+.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filter-btn{background:rgba(0,255,65,.05);border:1px solid #00aa2a;color:#00ff41;padding:8px 18px;border-radius:20px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.3s}
+.filter-btn:hover{background:rgba(0,255,65,.15)}
+.filter-btn.active{background:#00ff41;color:#000;box-shadow:0 0 20px rgba(0,255,65,.6)}
+
+/* شبكة الأخبار */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px}
+.news-card{background:linear-gradient(135deg,rgba(0,26,0,.8),rgba(0,10,0,.8));border:1px solid #00aa2a;border-radius:12px;padding:15px;transition:.3s;position:relative;overflow:hidden}
+.news-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:#00ff41}
+.news-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,255,65,.4);border-color:#00ff41}
+.news-card img{width:100%;height:150px;object-fit:cover;border-radius:8px;margin-bottom:10px;border:1px solid #00aa2a}
+.news-source{display:inline-block;background:#00ff41;color:#000;padding:2px 10px;border-radius:10px;font-size:.7rem;font-weight:900;margin-bottom:8px}
+.news-title{color:#00ff41;font-size:1rem;font-weight:700;margin-bottom:8px;line-height:1.5}
+.news-desc{color:#00cc33;font-size:.85rem;line-height:1.6;margin-bottom:10px}
+.news-time{color:#008822;font-size:.7rem;font-family:'Share Tech Mono',monospace}
+.read-btn{display:inline-block;background:rgba(0,255,65,.1);border:1px solid #00aa2a;color:#00ff41;padding:6px 15px;border-radius:8px;font-size:.8rem;font-weight:700;margin-top:8px;text-decoration:none;transition:.3s}
+.read-btn:hover{background:#00ff41;color:#000}
+
+/* Loading */
+.loader{text-align:center;padding:40px;color:#00ff41;font-family:'Share Tech Mono',monospace}
+.loader-spin{display:inline-block;width:40px;height:40px;border:3px solid #001a00;border-top-color:#00ff41;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:15px}
+@keyframes spin{100%{transform:rotate(360deg)}}
+
+/* Empty state */
+.empty{text-align:center;padding:40px;color:#008822;font-family:'Share Tech Mono',monospace}
+.empty-icon{font-size:3rem;margin-bottom:15px;opacity:.5}
+
+/* Footer */
+.intel-footer{text-align:center;padding:20px;color:#008822;font-family:'Share Tech Mono',monospace;font-size:.75rem;margin-top:20px;border-top:1px solid #003300}
+
+/* Clock */
+.clock{font-family:'Share Tech Mono',monospace;color:#00ff41;font-size:.9rem;text-align:center;margin-bottom:15px;letter-spacing:1px}
+
+/* Background grid */
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,255,65,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,.03) 1px,transparent 1px);background-size:30px 30px;z-index:-1;pointer-events:none}
+
+@media(max-width:600px){
+.news-grid{grid-template-columns:1fr}
+.intel-title{font-size:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- شاشة الدخول -->
+<div id="loginScreen">
+<div class="login-box">
+<div class="lock-icon">🔒</div>
+<h1>SECRET INTEL</h1>
+<p>&gt; ACCESS RESTRICTED &lt;</p>
+<input type="password" class="pass-input" id="passInput" placeholder="ENTER CODE" onkeypress="if(event.key==='Enter')checkPass()">
+<button class="enter-btn" onclick="checkPass()">🔓 دخول</button>
+<div class="error-msg" id="errMsg">❌ رمز الدخول خطأ!</div>
+</div>
+</div>
+
+<!-- الواجهة الرئيسية -->
+<div id="mainScreen">
+<div class="intel-header">
+<div class="intel-title">🕵️ CENTER OF OPERATIONS<small>&gt; SECURE CHANNEL ACTIVE</small></div>
+<div class="status-bar">
+<span class="dot-live"></span>
+<span>LIVE</span>
+<button class="logout-btn" onclick="logout()">خروج</button>
+</div>
+</div>
+
+<div class="clock" id="clock">--:--:--</div>
+
+<div class="ticker"><div class="ticker-content" id="tickerContent">📡 يتم تحميل الأخبار العاجلة...</div></div>
+
+<div class="filters" id="filters">
+<button class="filter-btn active" data-cat="all" onclick="setFilter('all',this)">🌐 الكل</button>
+<button class="filter-btn" data-cat="arabic" onclick="setFilter('arabic',this)">🇸🇦 عربي</button>
+<button class="filter-btn" data-cat="world" onclick="setFilter('world',this)">🌍 عالمي</button>
+<button class="filter-btn" data-cat="tech" onclick="setFilter('tech',this)">💻 تقنية</button>
+<button class="filter-btn" data-cat="games" onclick="setFilter('games',this)">🎮 ألعاب</button>
+<button class="filter-btn" data-cat="sports" onclick="setFilter('sports',this)">⚽ رياضة</button>
+<button class="filter-btn" data-cat="economy" onclick="setFilter('economy',this)">💰 اقتصاد</button>
+</div>
+
+<div class="news-grid" id="newsGrid">
+<div class="loader"><div class="loader-spin"></div><div>جاري سحب البيانات...</div></div>
+</div>
+
+<div class="intel-footer">
+<p>&gt; SECURE INTEL v1.0 &lt;</p>
+<p>آخر تحديث: <span id="lastUpdate">-</span></p>
+<p style="margin-top:8px;opacity:.5">جميع البيانات مسحوبة من مصادر عامة</p>
+</div>
+</div>
+
+<script>
+// ============ حماية ============
+// ⚠️ غير كلمة السر من هنا:
+const SECRET_PASSWORD = 'khafaji2026';
+
+function checkPass(){
+const input = document.getElementById('passInput').value;
+if(input === SECRET_PASSWORD){
+localStorage.setItem('intelAuth','ok');
+document.getElementById('loginScreen').classList.add('hidden');
+document.getElementById('mainScreen').classList.add('show');
+startClock();
+loadAllNews();
+setInterval(loadAllNews, 5 * 60 * 1000); // كل 5 دقائق
+setInterval(updateClock, 1000);
+} else {
+document.getElementById('errMsg').classList.add('show');
+document.getElementById('passInput').value='';
+setTimeout(()=>document.getElementById('errMsg').classList.remove('show'), 2000);
+}
+}
+
+function logout(){
+localStorage.removeItem('intelAuth');
+location.reload();
+}
+
+// فحص الجلسة
+if(localStorage.getItem('intelAuth') === 'ok'){
+document.getElementById('loginScreen').classList.add('hidden');
+document.getElementById('mainScreen').classList.add('show');
+window.addEventListener('load', function(){
+startClock();
+loadAllNews();
+setInterval(loadAllNews, 5 * 60 * 1000);
+setInterval(updateClock, 1000);
+});
+}
+
+// ============ الساعة ============
+function updateClock(){
+var d = new Date();
+var t = d.toLocaleTimeString('en-GB');
+var date = d.toLocaleDateString('en-GB');
+document.getElementById('clock').textContent = '📅 ' + date + '  |  ⏰ ' + t + '  |  🟢 SECURE';
+}
+function startClock(){ updateClock(); }
+
+// ============ المصادر ============
+var sources = [
+// عربي
+{name:'الجزيرة', url:'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bfdff8b8cab9', cat:'arabic'},
+{name:'العربية', url:'https://www.alarabiya.net/feed/rss2/arabicNews.xml', cat:'arabic'},
+{name:'BBC عربي', url:'https://feeds.bbci.co.uk/arabic/rss.xml', cat:'arabic'},
+{name:'RT عربي', url:'https://arabic.rt.com/rss/', cat:'arabic'},
+// عالمي
+{name:'BBC World', url:'https://feeds.bbci.co.uk/news/world/rss.xml', cat:'world'},
+{name:'CNN', url:'http://rss.cnn.com/rss/edition.rss', cat:'world'},
+{name:'Reuters', url:'https://feeds.reuters.com/reuters/topNews', cat:'world'},
+// تقنية
+{name:'TechCrunch', url:'https://techcrunch.com/feed/', cat:'tech'},
+{name:'The Verge', url:'https://www.theverge.com/rss/index.xml', cat:'tech'},
+{name:'Ars Technica', url:'https://feeds.arstechnica.com/arstechnica/index', cat:'tech'},
+// ألعاب
+{name:'IGN', url:'https://feeds.ign.com/ign/all', cat:'games'},
+{name:'Polygon', url:'https://www.polygon.com/rss/index.xml', cat:'games'},
+// رياضة
+{name:'ESPN', url:'https://www.espn.com/espn/rss/news', cat:'sports'},
+{name:'Sky Sports', url:'https://www.skysports.com/rss/12040', cat:'sports'},
+// اقتصاد
+{name:'CNBC', url:'https://www.cnbc.com/id/100003114/device/rss/rss.html', cat:'economy'},
+{name:'Bloomberg', url:'https://feeds.bloomberg.com/markets/news.rss', cat:'economy'}
+];
+
+var allNews = [];
+var currentFilter = 'all';
+
+// ============ جلب الأخبار ============
+async function loadAllNews(){
+document.getElementById('newsGrid').innerHTML = '<div class="loader"><div class="loader-spin"></div><div>جاري سحب البيانات من ' + sources.length + ' مصدر...</div></div>';
+allNews = [];
+var promises = sources.map(function(src){ return fetchSource(src); });
+var results = await Promise.allSettled(promises);
+results.forEach(function(r){
+if(r.status === 'fulfilled' && r.value){
+allNews = allNews.concat(r.value);
+}
+});
+// ترتيب حسب التاريخ
+allNews.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB');
+updateTicker();
+renderNews();
+}
+
+async function fetchSource(src){
+try{
+var apiUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(src.url) + '&count=8';
+var res = await fetch(apiUrl);
+var data = await res.json();
+if(data.status !== 'ok' || !data.items) return [];
+return data.items.map(function(item){
+return {
+title: item.title || 'بدون عنوان',
+link: item.link || '#',
+desc: (item.description || '').replace(/<[^>]*>/g,'').substring(0,200),
+image: item.thumbnail || (item.enclosure && item.enclosure.link) || '',
+date: item.pubDate || new Date().toISOString(),
+source: src.name,
+cat: src.cat
+};
+});
+}catch(e){ return []; }
+}
+
+// ============ الفلاتر ============
+function setFilter(cat, btn){
+currentFilter = cat;
+document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+btn.classList.add('active');
+renderNews();
+}
+
+// ============ عرض الأخبار ============
+function renderNews(){
+var grid = document.getElementById('newsGrid');
+var filtered = currentFilter === 'all' ? allNews : allNews.filter(function(n){ return n.cat === currentFilter; });
+if(filtered.length === 0){
+grid.innerHTML = '<div class="empty"><div class="empty-icon">📡</div><p>لا توجد أخبار متاحة حالياً</p><p style="font-size:.8rem;margin-top:10px">حاول تحديث الصفحة</p></div>';
+return;
+}
+var html = '';
+filtered.forEach(function(n){
+var timeAgo = getTimeAgo(n.date);
+var imgHtml = n.image ? '<img src="' + n.image + '" onerror="this.style.display=\'none\'" loading="lazy">' : '';
+html += '<div class="news-card">';
+html += '<span class="news-source">' + n.source + '</span>';
+html += imgHtml;
+html += '<div class="news-title">' + n.title + '</div>';
+html += '<div class="news-desc">' + n.desc + '...</div>';
+html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+html += '<span class="news-time">⏱ ' + timeAgo + '</span>';
+html += '<a href="' + n.link + '" class="read-btn" target="_blank">📖 اقرأ ←</a>';
+html += '</div></div>';
+});
+grid.innerHTML = html;
+}
+
+function getTimeAgo(dateStr){
+var d = new Date(dateStr);
+var now = new Date();
+var diff = Math.floor((now - d) / 1000);
+if(diff < 60) return 'الآن';
+if(diff < 3600) return Math.floor(diff/60) + ' دقيقة';
+if(diff < 86400) return Math.floor(diff/3600) + ' ساعة';
+return Math.floor(diff/86400) + ' يوم';
+}
+
+// ============ شريط العاجل ============
+function updateTicker(){
+var top = allNews.slice(0, 10).map(function(n){ return '⚡ ' + n.title; }).join('    ●    ');
+document.getElementById('tickerContent').textContent = top || 'لا توجد أخبار عاجلة';
+}
+</script>
+
+</body>
+</html>
