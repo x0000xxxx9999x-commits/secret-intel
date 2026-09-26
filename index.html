@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔒 SECRET INTEL | مركز العمليات</title>
+<title>🔒 SECRET INTEL</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -113,7 +113,7 @@ body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;backg
 </div>
 
 <div class="intel-footer">
-<p>&gt; SECURE INTEL v1.1 &lt;</p>
+<p>&gt; SECURE INTEL v1.2 &lt;</p>
 <p>آخر تحديث: <span id="lastUpdate">-</span></p>
 </div>
 </div>
@@ -160,7 +160,6 @@ var date = d.toLocaleDateString('en-GB');
 document.getElementById('clock').textContent = '📅 ' + date + '  |  ⏰ ' + t + '  |  🟢 SECURE';
 }
 
-// ============ المصادر ============
 var sources = [
 {name:'الجزيرة', url:'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bfdff8b8cab9', cat:'arabic'},
 {name:'BBC عربي', url:'https://feeds.bbci.co.uk/arabic/rss.xml', cat:'arabic'},
@@ -171,19 +170,15 @@ var sources = [
 {name:'NY Times', url:'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', cat:'world'},
 {name:'TechCrunch', url:'https://techcrunch.com/feed/', cat:'tech'},
 {name:'The Verge', url:'https://www.theverge.com/rss/index.xml', cat:'tech'},
-{name:'Ars Technica', url:'https://feeds.arstechnica.com/arstechnica/index', cat:'tech'},
 {name:'IGN', url:'https://feeds.ign.com/ign/all', cat:'games'},
 {name:'Polygon', url:'https://www.polygon.com/rss/index.xml', cat:'games'},
 {name:'ESPN', url:'https://www.espn.com/espn/rss/news', cat:'sports'},
-{name:'Sky Sports', url:'https://www.skysports.com/rss/12040', cat:'sports'},
-{name:'CNBC', url:'https://www.cnbc.com/id/100003114/device/rss/rss.html', cat:'economy'},
-{name:'Bloomberg', url:'https://feeds.bloomberg.com/markets/news.rss', cat:'economy'}
+{name:'CNBC', url:'https://www.cnbc.com/id/100003114/device/rss/rss.html', cat:'economy'}
 ];
 
 var allNews = [];
 var currentFilter = 'all';
 
-// ============ جلب الأخبار ============
 async function loadAllNews(){
 var grid = document.getElementById('newsGrid');
 grid.innerHTML = '<div class="loader"><div class="loader-spin"></div><div>جاري سحب البيانات من ' + sources.length + ' مصدر...</div></div>';
@@ -206,61 +201,71 @@ renderNews();
 }
 
 async function fetchSource(src){
-// طريقة 1: rss2json
+// الطريقة 1: corsproxy.io
 try{
-var r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(src.url) + '&count=8');
-var d = await r.json();
-if(d.status === 'ok' && d.items && d.items.length){
-return d.items.map(function(item){
-return {
-title: item.title || 'بدون عنوان',
-link: item.link || '#',
-desc: (item.description || '').replace(/<[^>]*>/g,'').substring(0,180),
-image: item.thumbnail || (item.enclosure && item.enclosure.link) || '',
-date: item.pubDate || new Date().toISOString(),
-source: src.name,
-cat: src.cat
-};
-});
+var r = await fetch('https://corsproxy.io/?' + encodeURIComponent(src.url));
+if(r.ok){
+var text = await r.text();
+var parsed = parseXML(text, src);
+if(parsed.length) return parsed;
 }
 }catch(e){}
 
-// طريقة 2: AllOrigins + parse XML
+// الطريقة 2: allorigins
 try{
 var r2 = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(src.url));
+if(r2.ok){
 var d2 = await r2.json();
 if(d2 && d2.contents){
+var parsed2 = parseXML(d2.contents, src);
+if(parsed2.length) return parsed2;
+}
+}
+}catch(e){}
+
+return [];
+}
+
+function parseXML(xmlText, src){
+try{
 var parser = new DOMParser();
-var xml = parser.parseFromString(d2.contents, 'text/xml');
+var xml = parser.parseFromString(xmlText, 'text/xml');
 var items = xml.querySelectorAll('item');
 if(items.length === 0) items = xml.querySelectorAll('entry');
 var out = [];
 for(var i=0; i<Math.min(items.length, 8); i++){
 var it = items[i];
 var title = it.querySelector('title') ? it.querySelector('title').textContent : '';
-var link = it.querySelector('link') ? (it.querySelector('link').getAttribute('href') || it.querySelector('link').textContent) : '#';
-var desc = it.querySelector('description') ? it.querySelector('description').textContent : (it.querySelector('summary') ? it.querySelector('summary').textContent : '');
-var pubDate = it.querySelector('pubDate') ? it.querySelector('pubDate').textContent : (it.querySelector('updated') ? it.querySelector('updated').textContent : new Date().toISOString());
+var linkEl = it.querySelector('link');
+var link = '#';
+if(linkEl){
+link = linkEl.getAttribute('href') || linkEl.textContent || '#';
+}
+var desc = '';
+var descEl = it.querySelector('description') || it.querySelector('summary') || it.querySelector('content');
+if(descEl) desc = descEl.textContent.replace(/<[^>]*>/g,'').substring(0,180);
+var pubDate = '';
+var dateEl = it.querySelector('pubDate') || it.querySelector('updated') || it.querySelector('published');
+if(dateEl) pubDate = dateEl.textContent;
 var img = '';
+var enclosure = it.querySelector('enclosure');
+if(enclosure) img = enclosure.getAttribute('url') || '';
+if(!img){
 var media = it.getElementsByTagName('media:content');
 if(media.length > 0) img = media[0].getAttribute('url') || '';
-var enclosure = it.querySelector('enclosure');
-if(!img && enclosure) img = enclosure.getAttribute('url') || '';
+}
 out.push({
 title: title,
 link: link,
-desc: desc.replace(/<[^>]*>/g,'').substring(0,180),
+desc: desc,
 image: img,
-date: pubDate,
+date: pubDate || new Date().toISOString(),
 source: src.name,
 cat: src.cat
 });
 }
 return out;
-}
-}catch(e){}
-
-return [];
+}catch(e){ return []; }
 }
 
 function setFilter(cat, btn){
@@ -274,7 +279,7 @@ function renderNews(){
 var grid = document.getElementById('newsGrid');
 var filtered = currentFilter === 'all' ? allNews : allNews.filter(function(n){ return n.cat === currentFilter; });
 if(filtered.length === 0){
-grid.innerHTML = '<div class="empty"><div class="empty-icon">📡</div><p>لا توجد أخبار في هذا القسم</p><p style="font-size:.8rem;margin-top:10px">جرب قسم آخر أو اضغط تحديث</p></div>';
+grid.innerHTML = '<div class="empty"><div class="empty-icon">📡</div><p>لا توجد أخبار في هذا القسم</p></div>';
 return;
 }
 var html = '';
