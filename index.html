@@ -3,317 +3,644 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔒 SECRET INTEL</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<title>🔒 SECURE TERMINAL | مركز الأوامر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Cairo,sans-serif;background:#000;color:#00ff41;overflow-x:hidden;min-height:100vh}
-#loginScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#000,#0a1a0a,#000);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
-#loginScreen.hidden{display:none}
-.login-box{background:rgba(0,20,0,.9);border:2px solid #00ff41;border-radius:15px;padding:40px 30px;max-width:400px;width:100%;box-shadow:0 0 50px rgba(0,255,65,.5);position:relative;overflow:hidden}
-.login-box::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:2px;background:linear-gradient(90deg,transparent,#00ff41,transparent);animation:scan 3s linear infinite}
-@keyframes scan{0%{left:-100%}100%{left:100%}}
-.login-box h1{text-align:center;font-family:'Share Tech Mono',monospace;color:#00ff41;margin-bottom:10px;font-size:1.5rem;letter-spacing:3px}
-.login-box p{text-align:center;color:#00aa2a;font-size:.85rem;margin-bottom:25px;font-family:'Share Tech Mono',monospace}
-.lock-icon{font-size:3rem;text-align:center;margin-bottom:15px;animation:lockPulse 2s ease-in-out infinite}
-@keyframes lockPulse{0%,100%{text-shadow:0 0 20px #00ff41}50%{text-shadow:0 0 40px #00ff41,0 0 60px #00ff41}}
-.pass-input{width:100%;padding:14px 18px;background:#001a00;border:2px solid #00aa2a;border-radius:10px;color:#00ff41;font-family:'Share Tech Mono',monospace;font-size:1rem;outline:none;margin-bottom:15px;text-align:center;letter-spacing:2px}
-.pass-input:focus{border-color:#00ff41;box-shadow:0 0 20px rgba(0,255,65,.5)}
-.enter-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00aa2a,#00ff41);color:#000;border:none;border-radius:10px;font-family:inherit;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:2px}
-.enter-btn:hover{box-shadow:0 0 30px rgba(0,255,65,.8)}
-.error-msg{color:#ff0000;text-align:center;font-size:.85rem;margin-top:10px;display:none}
-.error-msg.show{display:block;animation:shake .5s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
-#mainScreen{display:none;padding:15px}
-#mainScreen.show{display:block}
-.intel-header{background:linear-gradient(90deg,#001a00,#002800,#001a00);border:2px solid #00ff41;border-radius:12px;padding:15px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:0 0 30px rgba(0,255,65,.3)}
-.intel-title{font-family:'Share Tech Mono',monospace;color:#00ff41;font-size:1.2rem;letter-spacing:2px}
-.intel-title small{display:block;color:#00aa2a;font-size:.7rem;margin-top:3px;letter-spacing:1px}
-.status-bar{display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:#00ff41}
-.dot-live{width:8px;height:8px;background:#00ff41;border-radius:50%;animation:blink 1s infinite;box-shadow:0 0 10px #00ff41}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Share Tech Mono',monospace;background:#000;color:#00ff41;display:flex;flex-direction:column}
+#terminal{flex:1;display:flex;flex-direction:column;height:100%;position:relative}
+
+/* شريط الحالة */
+.status-bar{background:#001a00;border-bottom:1px solid #00aa2a;padding:6px 12px;display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:#00ff41;flex-shrink:0}
+.status-bar .left,.status-bar .right{display:flex;gap:12px;align-items:center}
+.blink{animation:blink 1s infinite}
 @keyframes blink{50%{opacity:.3}}
-.logout-btn{background:rgba(255,0,0,.2);border:1px solid #ff0000;color:#ff0000;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:.8rem;cursor:pointer;font-weight:700}
-.ticker{background:#001a00;border:1px solid #00aa2a;border-radius:8px;padding:8px 15px;margin-bottom:15px;overflow:hidden;font-family:'Share Tech Mono',monospace;font-size:.85rem;color:#00ff41;white-space:nowrap}
-.ticker-content{display:inline-block;animation:ticker 40s linear infinite}
-@keyframes ticker{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.filters{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:15px;scrollbar-width:none}
-.filters::-webkit-scrollbar{display:none}
-.filter-btn{background:rgba(0,255,65,.05);border:1px solid #00aa2a;color:#00ff41;padding:8px 18px;border-radius:20px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:.3s}
-.filter-btn.active{background:#00ff41;color:#000;box-shadow:0 0 20px rgba(0,255,65,.6)}
-.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px;flex-wrap:wrap}
-.refresh-btn{background:linear-gradient(135deg,#00aa2a,#00ff41);border:none;color:#000;padding:8px 20px;border-radius:20px;font-family:inherit;font-weight:900;font-size:.85rem;cursor:pointer}
-.refresh-btn:hover{box-shadow:0 0 20px rgba(0,255,65,.7)}
-.status-txt{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:#00aa2a}
-.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px}
-.news-card{background:linear-gradient(135deg,rgba(0,26,0,.8),rgba(0,10,0,.8));border:1px solid #00aa2a;border-radius:12px;padding:15px;transition:.3s;position:relative;overflow:hidden}
-.news-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;background:#00ff41}
-.news-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,255,65,.4);border-color:#00ff41}
-.news-card img{width:100%;height:150px;object-fit:cover;border-radius:8px;margin-bottom:10px;border:1px solid #00aa2a}
-.news-source{display:inline-block;background:#00ff41;color:#000;padding:2px 10px;border-radius:10px;font-size:.7rem;font-weight:900;margin-bottom:8px}
-.news-title{color:#00ff41;font-size:1rem;font-weight:700;margin-bottom:8px;line-height:1.5}
-.news-desc{color:#00cc33;font-size:.85rem;line-height:1.6;margin-bottom:10px}
-.news-time{color:#008822;font-size:.7rem;font-family:'Share Tech Mono',monospace}
-.read-btn{display:inline-block;background:rgba(0,255,65,.1);border:1px solid #00aa2a;color:#00ff41;padding:6px 15px;border-radius:8px;font-size:.8rem;font-weight:700;margin-top:8px;text-decoration:none}
-.read-btn:hover{background:#00ff41;color:#000}
-.loader{text-align:center;padding:40px;color:#00ff41;font-family:'Share Tech Mono',monospace;grid-column:1/-1}
-.loader-spin{display:inline-block;width:40px;height:40px;border:3px solid #001a00;border-top-color:#00ff41;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:15px}
-@keyframes spin{100%{transform:rotate(360deg)}}
-.empty{text-align:center;padding:40px;color:#008822;font-family:'Share Tech Mono',monospace;grid-column:1/-1}
-.empty-icon{font-size:3rem;margin-bottom:15px;opacity:.5}
-.intel-footer{text-align:center;padding:20px;color:#008822;font-family:'Share Tech Mono',monospace;font-size:.75rem;margin-top:20px;border-top:1px solid #003300}
-.clock{font-family:'Share Tech Mono',monospace;color:#00ff41;font-size:.9rem;text-align:center;margin-bottom:15px;letter-spacing:1px}
-body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,255,65,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,.03) 1px,transparent 1px);background-size:30px 30px;z-index:-1;pointer-events:none}
-@media(max-width:600px){.news-grid{grid-template-columns:1fr}.intel-title{font-size:1rem}}
+
+/* الشاشة */
+#screen{flex:1;overflow-y:auto;padding:12px;font-size:14px;line-height:1.6;direction:ltr;text-align:left}
+#screen::-webkit-scrollbar{width:6px}
+#screen::-webkit-scrollbar-track{background:#000}
+#screen::-webkit-scrollbar-thumb{background:#00aa2a;border-radius:3px}
+
+/* سطر الإدخال */
+#inputLine{display:flex;align-items:center;background:#001a00;border-top:1px solid #00aa2a;padding:8px 12px;gap:8px;direction:ltr;flex-shrink:0}
+#prompt{color:#00ff41;font-weight:700;white-space:nowrap;font-size:14px}
+#cmd{flex:1;background:transparent;border:none;outline:none;color:#00ff41;font-family:'Share Tech Mono',monospace;font-size:14px;caret-color:#00ff41}
+
+/* مخرجات */
+.line{margin-bottom:3px;word-wrap:break-word}
+.line.err{color:#ff3b3b}
+.line.warn{color:#ffaa00}
+.line.info{color:#00ccff}
+.line.success{color:#00ff41}
+.line.white{color:#cccccc}
+.prompt-txt{color:#00ff41}
+.cmd-txt{color:#ffffff}
+.ascii{color:#00ff41;white-space:pre;line-height:1.1;font-size:9px;margin-bottom:10px}
+.title-glow{color:#00ff41;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41}
+.box{border:1px solid #00aa2a;padding:8px 12px;margin:6px 0;border-radius:4px;background:rgba(0,255,65,.03)}
+a{color:#00ccff;text-decoration:none}
+a:hover{text-decoration:underline}
+.copy-btn{background:rgba(0,255,65,.1);border:1px solid #00aa2a;color:#00ff41;padding:2px 8px;border-radius:4px;font-family:inherit;font-size:12px;cursor:pointer;margin:2px}
+.copy-btn:hover{background:#00ff41;color:#000}
+
+/* Matrix canvas */
+#matrixCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:none;background:#000}
+#matrixCanvas.on{display:block}
+
+/* QR */
+#qrBox{background:#fff;padding:10px;display:inline-block;border-radius:8px;margin:8px 0}
+
+/* loading dots */
+.dots:after{content:'';animation:dots 1.5s infinite}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
 </style>
 </head>
 <body>
 
-<div id="loginScreen">
-<div class="login-box">
-<div class="lock-icon">🔒</div>
-<h1>SECRET INTEL</h1>
-<p>&gt; ACCESS RESTRICTED &lt;</p>
-<input type="password" class="pass-input" id="passInput" placeholder="ENTER CODE" onkeypress="if(event.key==='Enter')checkPass()">
-<button class="enter-btn" onclick="checkPass()">🔓 دخول</button>
-<div class="error-msg" id="errMsg">❌ رمز الدخول خطأ!</div>
-</div>
-</div>
-
-<div id="mainScreen">
-<div class="intel-header">
-<div class="intel-title">🕵️ CENTER OF OPERATIONS<small>&gt; SECURE CHANNEL ACTIVE</small></div>
+<div id="terminal">
 <div class="status-bar">
-<span class="dot-live"></span>
-<span>LIVE</span>
-<button class="logout-btn" onclick="logout()">خروج</button>
+<div class="left">
+<span>🟢 SECURE</span>
+<span>|</span>
+<span class="blink">●</span>
+<span>TERMINAL v4.0</span>
+</div>
+<div class="right">
+<span id="clock">--:--:--</span>
+<span>|</span>
+<span id="userStatus">👤 GUEST</span>
 </div>
 </div>
 
-<div class="clock" id="clock">--:--:--</div>
+<div id="screen"></div>
 
-<div class="ticker"><div class="ticker-content" id="tickerContent">📡 يتم تحميل الأخبار...</div></div>
-
-<div class="refresh-bar">
-<button class="refresh-btn" onclick="loadAllNews()">🔄 تحديث الأخبار</button>
-<span class="status-txt" id="statusTxt">جاري التحميل...</span>
-</div>
-
-<div class="filters" id="filters">
-<button class="filter-btn active" onclick="setFilter('all',this)">🌐 الكل</button>
-<button class="filter-btn" onclick="setFilter('arabic',this)">🇸🇦 عربي</button>
-<button class="filter-btn" onclick="setFilter('world',this)">🌍 عالمي</button>
-<button class="filter-btn" onclick="setFilter('tech',this)">💻 تقنية</button>
-<button class="filter-btn" onclick="setFilter('games',this)">🎮 ألعاب</button>
-<button class="filter-btn" onclick="setFilter('sports',this)">⚽ رياضة</button>
-<button class="filter-btn" onclick="setFilter('economy',this)">💰 اقتصاد</button>
-</div>
-
-<div class="news-grid" id="newsGrid">
-<div class="loader"><div class="loader-spin"></div><div>جاري سحب البيانات...</div></div>
-</div>
-
-<div class="intel-footer">
-<p>&gt; SECURE INTEL v1.2 &lt;</p>
-<p>آخر تحديث: <span id="lastUpdate">-</span></p>
+<div id="inputLine">
+<span id="prompt">guest@secure:~#</span>
+<input type="text" id="cmd" autocomplete="off" spellcheck="false" autocapitalize="off" placeholder="اكتب help">
 </div>
 </div>
+
+<canvas id="matrixCanvas"></canvas>
 
 <script>
-var SECRET_PASSWORD = 'khafaji2026';
+// ===================== الإعدادات =====================
+var ADMIN_PASSWORD = 'khafaji2026';
+var isLogged = false;
+var history = [];
+var histIndex = -1;
+var currentUser = 'guest';
 
-function checkPass(){
-var input = document.getElementById('passInput').value;
-if(input === SECRET_PASSWORD){
-localStorage.setItem('intelAuth','ok');
-document.getElementById('loginScreen').classList.add('hidden');
-document.getElementById('mainScreen').classList.add('show');
-startAll();
-} else {
-document.getElementById('errMsg').classList.add('show');
-document.getElementById('passInput').value='';
-setTimeout(function(){document.getElementById('errMsg').classList.remove('show')}, 2000);
-}
-}
+// ===================== أدوات مساعدة =====================
+function getEl(id){return document.getElementById(id)}
+function screen(){return getEl('screen')}
 
-function logout(){
-localStorage.removeItem('intelAuth');
-location.reload();
+function scrollBottom(){
+var s = screen();
+setTimeout(function(){ s.scrollTop = s.scrollHeight }, 30);
 }
 
-function startAll(){
-updateClock();
-setInterval(updateClock, 1000);
-loadAllNews();
-setInterval(loadAllNews, 5 * 60 * 1000);
+function print(text, cls){
+var s = screen();
+var d = document.createElement('div');
+d.className = 'line ' + (cls || '');
+d.innerHTML = text;
+s.appendChild(d);
+scrollBottom();
 }
 
-if(localStorage.getItem('intelAuth') === 'ok'){
-document.getElementById('loginScreen').classList.add('hidden');
-document.getElementById('mainScreen').classList.add('show');
-window.addEventListener('load', startAll);
+function printAscii(text){
+var s = screen();
+var d = document.createElement('div');
+d.className = 'ascii title-glow';
+d.textContent = text;
+s.appendChild(d);
+scrollBottom();
 }
 
-function updateClock(){
-var d = new Date();
-var t = d.toLocaleTimeString('en-GB');
-var date = d.toLocaleDateString('en-GB');
-document.getElementById('clock').textContent = '📅 ' + date + '  |  ⏰ ' + t + '  |  🟢 SECURE';
+function printPrompt(cmd){
+var s = screen();
+var d = document.createElement('div');
+d.className = 'line';
+d.innerHTML = '<span class="prompt-txt">' + currentUser + '@secure:~#</span> <span class="cmd-txt">' + escapeHtml(cmd) + '</span>';
+s.appendChild(d);
+scrollBottom();
 }
 
-var sources = [
-{name:'الجزيرة', url:'https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bfdff8b8cab9', cat:'arabic'},
-{name:'BBC عربي', url:'https://feeds.bbci.co.uk/arabic/rss.xml', cat:'arabic'},
-{name:'RT عربي', url:'https://arabic.rt.com/rss/', cat:'arabic'},
-{name:'سكاي نيوز', url:'https://www.skynewsarabia.com/web/rss/95.xml', cat:'arabic'},
-{name:'BBC World', url:'https://feeds.bbci.co.uk/news/world/rss.xml', cat:'world'},
-{name:'CNN', url:'http://rss.cnn.com/rss/edition.rss', cat:'world'},
-{name:'NY Times', url:'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', cat:'world'},
-{name:'TechCrunch', url:'https://techcrunch.com/feed/', cat:'tech'},
-{name:'The Verge', url:'https://www.theverge.com/rss/index.xml', cat:'tech'},
-{name:'IGN', url:'https://feeds.ign.com/ign/all', cat:'games'},
-{name:'Polygon', url:'https://www.polygon.com/rss/index.xml', cat:'games'},
-{name:'ESPN', url:'https://www.espn.com/espn/rss/news', cat:'sports'},
-{name:'CNBC', url:'https://www.cnbc.com/id/100003114/device/rss/rss.html', cat:'economy'}
+function escapeHtml(t){
+return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function clearScreen(){
+screen().innerHTML = '';
+}
+
+// ===================== Welcome =====================
+function welcome(){
+printAscii(
+'  ███████ ███████  ██████ ██    ██ ██████  ███████\n' +
+'  ██      ██      ██      ██    ██ ██   ██ ██     \n' +
+'  ███████ █████   ██      ██    ██ ██████  █████  \n' +
+'       ██ ██      ██      ██    ██ ██   ██ ██     \n' +
+'  ███████ ███████  ██████  ██████  ██   ██ ███████\n'
+);
+print('🔒 SECURE TERMINAL v4.0 - مركز الأوامر', 'success');
+print('━'.repeat(50), 'white');
+print('📌 اكتب <b>help</b> لعرض الأوامر المتاحة', 'info');
+print('📌 اكتب <b>cmds</b> لعرض سريع للأدوات', 'info');
+print('📌 اكتب <b>about</b> لمعرفة المزيد', 'info');
+print('');
+print('👤 المستخدم الحالي: ' + currentUser, 'warn');
+print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'white');
+}
+
+// ===================== الأوامر =====================
+var commands = {
+
+'help': function(){
+print('📖 الأوامر المتاحة:', 'success');
+print('');
+print('<b>═══ عام ═══</b>', 'info');
+print('  help          - عرض هذه القائمة');
+print('  cmds          - قائمة سريعة');
+print('  about         - عن الموقع');
+print('  clear         - مسح الشاشة');
+print('  time / date   - الوقت والتاريخ');
+print('  echo [نص]     - طباعة النص');
+print('');
+print('<b>═══ تشفير وحماية ═══</b>', 'info');
+print('  hash [نص]     - تشفير MD5');
+print('  sha256 [نص]   - تشفير SHA-256');
+print('  b64e [نص]     - تشفير Base64');
+print('  b64d [نص]     - فك Base64');
+print('  rot13 [نص]    - تشفير ROT13');
+print('  hex [نص]      - تحويل إلى Hex');
+print('  unhex [hex]   - فك Hex');
+print('  reverse [نص]  - عكس النص');
+print('');
+print('<b>═══ كلمات المرور ═══</b>', 'info');
+print('  passgen [طول] - توليد كلمة مرور قوية');
+print('  passcheck [كلمة] - فحص قوة كلمة');
+print('');
+print('<b>═══ شبكة ═══</b>', 'info');
+print('  ipinfo        - معلومات IP');
+print('  dns [نطاق]    - فحص DNS');
+print('  headers [رابط] - عرض headers الموقع');
+print('');
+print('<b>═══ ترفيه ═══</b>', 'info');
+print('  matrix        - شاشة الماتريكس');
+print('  hack          - محاكاة هاكر');
+print('  tips          - نصائح أمنية');
+print('');
+print('<b>═══ إدارة ═══</b>', 'warn');
+print('  login [كلمة]  - دخول للوحة الإدارة');
+print('  logout        - خروج');
+print('  admin         - لوحة الأدمن');
+},
+
+'cmds': function(){
+print('⚡ الأوامر السريعة:', 'success');
+print('  help | about | clear | time | echo', 'white');
+print('  hash | sha256 | b64e | b64d | rot13', 'white');
+print('  passgen | passcheck | uuid | qr', 'white');
+print('  ipinfo | dns | headers', 'white');
+print('  matrix | hack | tips', 'white');
+},
+
+'about': function(){
+print('🔒 SECURE TERMINAL', 'success');
+print('');
+print('محطة أوامر تفاعلية تعليمية');
+print('تحتوي على أدوات حماية وتشفير قانونية');
+print('');
+print('⚠️ تحذير: جميع الأدوات تعليمية');
+print('لا نستخدم أي أدوات اختراق حقيقية');
+print('');
+print('📱 صُنع بواسطة: خفاجي ڪيمز', 'info');
+print('🌐 القناة: youtube.com/@experiencestaterp', 'info');
+print('💬 ديسكورد: discord.gg/4AbKZMCPXP', 'info');
+},
+
+'clear': function(){ clearScreen(); },
+
+'time': function(){
+print('⏰ ' + new Date().toLocaleTimeString('en-GB'), 'success');
+},
+
+'date': function(){
+print('📅 ' + new Date().toLocaleDateString('en-GB', {weekday:'long',year:'numeric',month:'long',day:'numeric'}), 'success');
+},
+
+'echo': function(args){
+print(args.join(' '));
+},
+
+'hash': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: hash hello','err');return}
+var hash = md5(text);
+print('🔐 MD5("' + text + '") =', 'success');
+print(hash, 'info');
+},
+
+'sha256': async function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: sha256 hello','err');return}
+print('⏳ جاري الحساب...', 'warn');
+var enc = new TextEncoder();
+var buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
+var arr = Array.from(new Uint8Array(buf));
+var hex = arr.map(function(b){return b.toString(16).padStart(2,'0')}).join('');
+print('🔐 SHA-256("' + text + '") =', 'success');
+print(hex, 'info');
+},
+
+'b64e': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: b64e hello','err');return}
+try{
+var enc = btoa(unescape(encodeURIComponent(text)));
+print('📝 Base64: ' + enc, 'success');
+}catch(e){print('❌ خطأ','err')}
+},
+
+'b64d': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: b64d aGVsbG8=','err');return}
+try{
+var dec = decodeURIComponent(escape(atob(text)));
+print('📝 فك: ' + dec, 'success');
+}catch(e){print('❌ ليس Base64 صحيح','err')}
+},
+
+'rot13': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: rot13 hello','err');return}
+var out = text.replace(/[a-zA-Z]/g, function(c){
+var base = c <= 'Z' ? 65 : 97;
+return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+});
+print('🔄 ROT13: ' + out, 'success');
+},
+
+'hex': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: hex hello','err');return}
+var hex = Array.from(text).map(function(c){return c.charCodeAt(0).toString(16).padStart(2,'0')}).join(' ');
+print('📝 Hex: ' + hex, 'success');
+},
+
+'unhex': function(args){
+var text = args.join(' ').replace(/\s/g,'');
+if(!text){print('❌ مثال: unhex 68656c6c6f','err');return}
+try{
+var out = '';
+for(var i=0;i<text.length;i+=2){
+out += String.fromCharCode(parseInt(text.substr(i,2),16));
+}
+print('📝 فك Hex: ' + out, 'success');
+}catch(e){print('❌ خطأ','err')}
+},
+
+'reverse': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: reverse hello','err');return}
+print('🔄 ' + text.split('').reverse().join(''), 'success');
+},
+
+'passgen': function(args){
+var len = parseInt(args[0]) || 16;
+if(len < 4) len = 4;
+if(len > 64) len = 64;
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}';
+var pass = '';
+var arr = new Uint32Array(len);
+crypto.getRandomValues(arr);
+for(var i=0;i<len;i++){pass += chars[arr[i] % chars.length]}
+print('🔑 كلمة مرور قوية (' + len + ' حرف):', 'success');
+print(pass, 'info');
+print('<button class="copy-btn" onclick="navigator.clipboard.writeText(\'' + pass + '\')">📋 نسخ</button>');
+},
+
+'passcheck': function(args){
+var pass = args.join(' ');
+if(!pass){print('❌ مثال: passcheck mypassword','err');return}
+var score = 0;
+var feedback = [];
+if(pass.length >= 8) score += 20; else feedback.push('زد الطول إلى 8+');
+if(pass.length >= 12) score += 20;
+if(pass.length >= 16) score += 10;
+if(/[a-z]/.test(pass)) score += 10; else feedback.push('أضف حروفاً صغيرة');
+if(/[A-Z]/.test(pass)) score += 10; else feedback.push('أضف حروفاً كبيرة');
+if(/[0-9]/.test(pass)) score += 15; else feedback.push('أضف أرقاماً');
+if(/[^a-zA-Z0-9]/.test(pass)) score += 15; else feedback.push('أضف رموزاً');
+if(score > 100) score = 100;
+var level = score < 40 ? '❌ ضعيفة' : score < 70 ? '⚠️ متوسطة' : score < 90 ? '✅ قوية' : '🛡️ ممتازة';
+print('🔍 فحص كلمة المرور', 'success');
+print('القوة: ' + score + '/100 - ' + level, score < 40 ? 'err' : score < 70 ? 'warn' : 'success');
+if(feedback.length){
+print('نصائح:', 'info');
+feedback.forEach(function(f){print('  • ' + f)});
+}
+},
+
+'uuid': function(){
+var u = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+var r = Math.random() * 16 | 0;
+var v = c === 'x' ? r : (r & 0x3 | 0x8);
+return v.toString(16);
+});
+print('🆔 UUID: ' + u, 'success');
+print('<button class="copy-btn" onclick="navigator.clipboard.writeText(\'' + u + '\')">📋 نسخ</button>');
+},
+
+'qr': function(args){
+var text = args.join(' ');
+if(!text){print('❌ مثال: qr hello','err');return}
+var url = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(text);
+print('📱 QR Code لـ: "' + text + '"', 'success');
+print('<div id="qrBox"><img src="' + url + '" alt="QR"></div>');
+},
+
+'ipinfo': async function(){
+print('⏳ جاري جلب المعلومات...', 'warn');
+try{
+var r = await fetch('https://ipapi.co/json/');
+var d = await r.json();
+print('🌐 معلومات IP', 'success');
+print('IP: ' + (d.ip || 'N/A'), 'info');
+print('الدولة: ' + (d.country_name || 'N/A'), 'info');
+print('المدينة: ' + (d.city || 'N/A'), 'info');
+print('المزود: ' + (d.org || 'N/A'), 'info');
+print('المنطقة الزمنية: ' + (d.timezone || 'N/A'), 'info');
+}catch(e){
+print('❌ فشل جلب المعلومات', 'err');
+}
+},
+
+'dns': async function(args){
+var domain = args[0];
+if(!domain){print('❌ مثال: dns google.com','err');return}
+print('⏳ جاري فحص DNS لـ: ' + domain, 'warn');
+try{
+var r = await fetch('https://dns.google/resolve?name=' + domain + '&type=A');
+var d = await r.json();
+if(d.Answer && d.Answer.length){
+print('✅ سجلات A:', 'success');
+d.Answer.forEach(function(a){print('  • ' + a.data)});
+}else{
+print('⚠️ لا توجد سجلات A', 'warn');
+}
+}catch(e){
+print('❌ فشل الفحص', 'err');
+}
+},
+
+'headers': async function(args){
+var url = args[0];
+if(!url){print('❌ مثال: headers https://google.com','err');return}
+if(!url.startsWith('http')) url = 'https://' + url;
+print('⏳ جاري الفحص...', 'warn');
+try{
+var r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
+var d = await r.json();
+print('✅ الموقع يعمل', 'success');
+print('الطول: ' + (d.contents ? d.contents.length : 0) + ' حرف', 'info');
+print('الرابط: <a href="' + url + '" target="_blank">' + url + '</a>', 'info');
+}catch(e){
+print('❌ فشل الفحص', 'err');
+}
+},
+
+'matrix': function(){
+var c = getEl('matrixCanvas');
+c.classList.add('on');
+var ctx = c.getContext('2d');
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+var chars = 'アァカサタナハマヤャラワABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*'.split('');
+var cols = Math.floor(c.width / 14);
+var drops = [];
+for(var i=0;i<cols;i++) drops[i] = 1;
+var interval = setInterval(function(){
+ctx.fillStyle = 'rgba(0,0,0,0.05)';
+ctx.fillRect(0,0,c.width,c.height);
+ctx.fillStyle = '#00ff41';
+ctx.font = '14px monospace';
+for(var i=0;i<drops.length;i++){
+var txt = chars[Math.floor(Math.random()*chars.length)];
+ctx.fillText(txt, i*14, drops[i]*14);
+if(drops[i]*14 > c.height && Math.random() > 0.975) drops[i] = 0;
+drops[i]++;
+}
+}, 33);
+setTimeout(function(){
+clearInterval(interval);
+c.classList.remove('on');
+print('🟢 عاد النظام', 'success');
+}, 6000);
+print('💊 MATRIX MODE - سيتم الإغلاق خلال 6 ثوان', 'success');
+},
+
+'hack': function(){
+print('🖥️ بدء محاكاة الاختراق...', 'warn');
+var lines = [
+'[*] Scanning network...',
+'[+] Found 12 open ports',
+'[*] Analyzing vulnerabilities...',
+'[+] CVE-2024-1234 detected',
+'[*] Attempting exploit...',
+'[+] Exploit successful!',
+'[*] Extracting data...',
+'[+] Downloaded 5.2 GB',
+'[*] Covering tracks...',
+'[✓] Mission complete (وهمي)'
 ];
-
-var allNews = [];
-var currentFilter = 'all';
-
-async function loadAllNews(){
-var grid = document.getElementById('newsGrid');
-grid.innerHTML = '<div class="loader"><div class="loader-spin"></div><div>جاري سحب البيانات من ' + sources.length + ' مصدر...</div></div>';
-document.getElementById('statusTxt').textContent = '⏳ جاري التحميل...';
-allNews = [];
-var promises = sources.map(function(src){ return fetchSource(src); });
-var results = await Promise.allSettled(promises);
-var successCount = 0;
-results.forEach(function(r){
-if(r.status === 'fulfilled' && r.value && r.value.length > 0){
-allNews = allNews.concat(r.value);
-successCount++;
-}
-});
-allNews.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
-document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-GB');
-document.getElementById('statusTxt').textContent = '✅ ' + allNews.length + ' خبر من ' + successCount + ' مصدر';
-updateTicker();
-renderNews();
-}
-
-async function fetchSource(src){
-// الطريقة 1: corsproxy.io
-try{
-var r = await fetch('https://corsproxy.io/?' + encodeURIComponent(src.url));
-if(r.ok){
-var text = await r.text();
-var parsed = parseXML(text, src);
-if(parsed.length) return parsed;
-}
-}catch(e){}
-
-// الطريقة 2: allorigins
-try{
-var r2 = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(src.url));
-if(r2.ok){
-var d2 = await r2.json();
-if(d2 && d2.contents){
-var parsed2 = parseXML(d2.contents, src);
-if(parsed2.length) return parsed2;
-}
-}
-}catch(e){}
-
-return [];
-}
-
-function parseXML(xmlText, src){
-try{
-var parser = new DOMParser();
-var xml = parser.parseFromString(xmlText, 'text/xml');
-var items = xml.querySelectorAll('item');
-if(items.length === 0) items = xml.querySelectorAll('entry');
-var out = [];
-for(var i=0; i<Math.min(items.length, 8); i++){
-var it = items[i];
-var title = it.querySelector('title') ? it.querySelector('title').textContent : '';
-var linkEl = it.querySelector('link');
-var link = '#';
-if(linkEl){
-link = linkEl.getAttribute('href') || linkEl.textContent || '#';
-}
-var desc = '';
-var descEl = it.querySelector('description') || it.querySelector('summary') || it.querySelector('content');
-if(descEl) desc = descEl.textContent.replace(/<[^>]*>/g,'').substring(0,180);
-var pubDate = '';
-var dateEl = it.querySelector('pubDate') || it.querySelector('updated') || it.querySelector('published');
-if(dateEl) pubDate = dateEl.textContent;
-var img = '';
-var enclosure = it.querySelector('enclosure');
-if(enclosure) img = enclosure.getAttribute('url') || '';
-if(!img){
-var media = it.getElementsByTagName('media:content');
-if(media.length > 0) img = media[0].getAttribute('url') || '';
-}
-out.push({
-title: title,
-link: link,
-desc: desc,
-image: img,
-date: pubDate || new Date().toISOString(),
-source: src.name,
-cat: src.cat
-});
-}
-return out;
-}catch(e){ return []; }
-}
-
-function setFilter(cat, btn){
-currentFilter = cat;
-document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-btn.classList.add('active');
-renderNews();
-}
-
-function renderNews(){
-var grid = document.getElementById('newsGrid');
-var filtered = currentFilter === 'all' ? allNews : allNews.filter(function(n){ return n.cat === currentFilter; });
-if(filtered.length === 0){
-grid.innerHTML = '<div class="empty"><div class="empty-icon">📡</div><p>لا توجد أخبار في هذا القسم</p></div>';
+var i = 0;
+var t = setInterval(function(){
+if(i >= lines.length){
+clearInterval(t);
+print('⚠️ هذه محاكاة تعليمية فقط - لم يحدث أي اختراق حقيقي', 'err');
 return;
 }
-var html = '';
-filtered.forEach(function(n){
-var timeAgo = getTimeAgo(n.date);
-var imgHtml = n.image ? '<img src="' + n.image + '" onerror="this.style.display=\'none\'" loading="lazy">' : '';
-html += '<div class="news-card">';
-html += '<span class="news-source">' + n.source + '</span>';
-html += imgHtml;
-html += '<div class="news-title">' + n.title + '</div>';
-html += '<div class="news-desc">' + n.desc + '...</div>';
-html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-html += '<span class="news-time">⏱ ' + timeAgo + '</span>';
-html += '<a href="' + n.link + '" class="read-btn" target="_blank">📖 اقرأ ←</a>';
-html += '</div></div>';
+var cls = lines[i].indexOf('[+]') === 0 ? 'success' : lines[i].indexOf('[✓]') === 0 ? 'success' : 'info';
+print(lines[i], cls);
+i++;
+}, 400);
+},
+
+'tips': function(){
+var tips = [
+'🔒 استخدم كلمة مرور قوية (16 حرف+ مع رموز)',
+'🛡️ لا تشارك كلمات مرورك مع أي شخص',
+'🔐 استخدم مصادقة ثنائية (2FA)',
+'🌐 لا تضغط على روابط مجهولة',
+'📱 حدّث تطبيقاتك باستمرار',
+'💾 خذ نسخة احتياطية من بياناتك',
+'🚫 لا تستخدم شبكات WiFi عامة للبنوك',
+'📧 تحقق من المُرسل قبل فتح المرفقات',
+'🔍 استخدم VPN عند الشبكات العامة',
+'⚠️ احذر رسائل "أنت رابح" - كلها نصب'
+];
+print('💡 نصائح أمنية:', 'success');
+tips.forEach(function(t){print('  ' + t)});
+},
+
+'login': function(args){
+var pass = args.join(' ');
+if(!pass){print('❌ مثال: login [كلمة السر]','err');return}
+if(pass === ADMIN_PASSWORD){
+isLogged = true;
+currentUser = 'admin';
+getEl('prompt').textContent = 'admin@secure:~#';
+getEl('userStatus').textContent = '👑 ADMIN';
+print('✅ تم تسجيل الدخول بنجاح!', 'success');
+print('مرحباً بك يا مدير. اكتب admin للوحة الإدارة.', 'success');
+}else{
+print('❌ كلمة المرور خطأ!', 'err');
+}
+},
+
+'logout': function(){
+isLogged = false;
+currentUser = 'guest';
+getEl('prompt').textContent = 'guest@secure:~#';
+getEl('userStatus').textContent = '👤 GUEST';
+print('👋 تم تسجيل الخروج', 'warn');
+},
+
+'admin': function(){
+if(!isLogged){print('❌ يجب تسجيل الدخول أولاً: login [كلمة السر]','err');return}
+print('👑 لوحة الإدارة', 'success');
+print('');
+print('📊 إحصائيات:');
+print('  • المستخدمون النشطون: 1');
+print('  • وقت التشغيل: ' + Math.floor(performance.now()/1000) + ' ثانية');
+print('  • الأوامر المنفذة: ' + history.length);
+print('');
+print('🛠️ الأوامر الإدارية:', 'info');
+print('  • admin - هذه اللوحة');
+print('  • logout - تسجيل الخروج');
+}
+
+};
+
+// ===================== MD5 (خفيف) =====================
+function md5(s){
+function safeAdd(x,y){var lsw=(x&0xFFFF)+(y&0xFFFF);var msw=(x>>16)+(y>>16)+(lsw>>16);return(msw<<16)|(lsw&0xFFFF)}
+function bitRotateLeft(num,cnt){return(num<<cnt)|(num>>>(32-cnt))}
+function md5cmn(q,a,b,x,s,t){return safeAdd(bitRotateLeft(safeAdd(safeAdd(a,q),safeAdd(x,t)),s),b)}
+function md5ff(a,b,c,d,x,s,t){return md5cmn((b&c)|(~b&d),a,b,x,s,t)}
+function md5gg(a,b,c,d,x,s,t){return md5cmn((b&d)|(c&~d),a,b,x,s,t)}
+function md5hh(a,b,c,d,x,s,t){return md5cmn(b^c^d,a,b,x,s,t)}
+function md5ii(a,b,c,d,x,s,t){return md5cmn(c^(b|~d),a,b,x,s,t)}
+function binlMD5(x,len){
+x[len>>5]|=0x80<<((len)%32);
+x[(((len+64)>>>9)<<4)+14]=len;
+var olda,oldb,oldc,oldd;
+var a=1732584193,b=-271733879,c=-1732584194,d=271733878;
+for(var i=0;i<x.length;i+=16){
+olda=a;oldb=b;oldc=c;oldd=d;
+a=md5ff(a,b,c,d,x[i],7,-680876936);d=md5ff(d,a,b,c,x[i+1],12,-389564586);c=md5ff(c,d,a,b,x[i+2],17,606105819);b=md5ff(b,c,d,a,x[i+3],22,-1044525330);
+a=md5ff(a,b,c,d,x[i+4],7,-176418897);d=md5ff(d,a,b,c,x[i+5],12,1200080426);c=md5ff(c,d,a,b,x[i+6],17,-1473231341);b=md5ff(b,c,d,a,x[i+7],22,-45705983);
+a=md5ff(a,b,c,d,x[i+8],7,1770035416);d=md5ff(d,a,b,c,x[i+9],12,-1958414417);c=md5ff(c,d,a,b,x[i+10],17,-42063);b=md5ff(b,c,d,a,x[i+11],22,-1990404162);
+a=md5ff(a,b,c,d,x[i+12],7,1804603682);d=md5ff(d,a,b,c,x[i+13],12,-40341101);c=md5ff(c,d,a,b,x[i+14],17,-1502002290);b=md5ff(b,c,d,a,x[i+15],22,1236535329);
+a=md5gg(a,b,c,d,x[i+1],5,-165796510);d=md5gg(d,a,b,c,x[i+6],9,-1069501632);c=md5gg(c,d,a,b,x[i+11],14,643717713);b=md5gg(b,c,d,a,x[i],20,-373897302);
+a=md5gg(a,b,c,d,x[i+5],5,-701558691);d=md5gg(d,a,b,c,x[i+10],9,38016083);c=md5gg(c,d,a,b,x[i+15],14,-660478335);b=md5gg(b,c,d,a,x[i+4],20,-405537848);
+a=md5gg(a,b,c,d,x[i+9],5,568446438);d=md5gg(d,a,b,c,x[i+14],9,-1019803690);c=md5gg(c,d,a,b,x[i+3],14,-187363961);b=md5gg(b,c,d,a,x[i+8],20,1163531501);
+a=md5gg(a,b,c,d,x[i+13],5,-1444681467);d=md5gg(d,a,b,c,x[i+2],9,-51403784);c=md5gg(c,d,a,b,x[i+7],14,1735328473);b=md5gg(b,c,d,a,x[i+12],20,-1926607734);
+a=md5hh(a,b,c,d,x[i+5],4,-378558);d=md5hh(d,a,b,c,x[i+8],11,-2022574463);c=md5hh(c,d,a,b,x[i+11],16,1839030562);b=md5hh(b,c,d,a,x[i+14],23,-35309556);
+a=md5hh(a,b,c,d,x[i+1],4,-1530992060);d=md5hh(d,a,b,c,x[i+4],11,1272893353);c=md5hh(c,d,a,b,x[i+7],16,-155497632);b=md5hh(b,c,d,a,x[i+10],23,-1094730640);
+a=md5hh(a,b,c,d,x[i+13],4,681279174);d=md5hh(d,a,b,c,x[i],11,-358537222);c=md5hh(c,d,a,b,x[i+3],16,-722521979);b=md5hh(b,c,d,a,x[i+6],23,76029189);
+a=md5hh(a,b,c,d,x[i+9],4,-640364487);d=md5hh(d,a,b,c,x[i+12],11,-421815835);c=md5hh(c,d,a,b,x[i+15],16,530742520);b=md5hh(b,c,d,a,x[i+2],23,-995338651);
+a=md5ii(a,b,c,d,x[i],6,-198630844);d=md5ii(d,a,b,c,x[i+7],10,1126891415);c=md5ii(c,d,a,b,x[i+14],15,-1416354905);b=md5ii(b,c,d,a,x[i+5],21,-57434055);
+a=md5ii(a,b,c,d,x[i+12],6,1700485571);d=md5ii(d,a,b,c,x[i+3],10,-1894986606);c=md5ii(c,d,a,b,x[i+10],15,-1051523);b=md5ii(b,c,d,a,x[i+1],21,-2054922799);
+a=md5ii(a,b,c,d,x[i+8],6,1873313359);d=md5ii(d,a,b,c,x[i+15],10,-30611744);c=md5ii(c,d,a,b,x[i+6],15,-1560198380);b=md5ii(b,c,d,a,x[i+13],21,1309151649);
+a=md5ii(a,b,c,d,x[i+4],6,-145523070);d=md5ii(d,a,b,c,x[i+11],10,-1120210379);c=md5ii(c,d,a,b,x[i+2],15,718787259);b=md5ii(b,c,d,a,x[i+9],21,-343485551);
+a=safeAdd(a,olda);b=safeAdd(b,oldb);c=safeAdd(c,oldc);d=safeAdd(d,oldd);
+}
+return[a,b,c,d];
+}
+function binl2rstr(input){
+var output='';var i;var length32=input.length*32;
+for(i=0;i<length32;i+=8){output+=String.fromCharCode((input[i>>5]>>>(i%32))&0xFF)}
+return output;
+}
+function rstr2binl(input){
+var output=[];var i;output[(input.length>>2)-1]=undefined;
+for(i=0;i<output.length;i+=1){output[i]=0}
+var length8=input.length*8;
+for(i=0;i<length8;i+=8){output[i>>5]|=(input.charCodeAt(i/8)&0xFF)<<(i%32)}
+return output;
+}
+function rstrMD5(s){return binl2rstr(binlMD5(rstr2binl(s),s.length*8))}
+function rstr2hex(input){
+var hexTab='0123456789abcdef';var output='';var x;var i;
+for(i=0;i<input.length;i+=1){x=input.charCodeAt(i);output+=hexTab.charAt((x>>>4)&0x0F)+hexTab.charAt(x&0x0F)}
+return output;
+}
+function str2rstrUTF8(input){return unescape(encodeURIComponent(input))}
+return rstr2hex(rstrMD5(str2rstrUTF8(s)));
+}
+
+// ===================== التنفيذ =====================
+var cmdInput = getEl('cmd');
+
+cmdInput.addEventListener('keydown', async function(e){
+if(e.key === 'Enter'){
+var raw = cmdInput.value.trim();
+if(!raw) return;
+printPrompt(raw);
+history.push(raw);
+histIndex = history.length;
+cmdInput.value = '';
+var parts = raw.split(/\s+/);
+var cmd = parts[0].toLowerCase();
+var args = parts.slice(1);
+if(commands[cmd]){
+try{
+await commands[cmd](args);
+}catch(err){
+print('❌ خطأ: ' + err.message, 'err');
+}
+}else{
+print('❌ أمر غير معروف: ' + cmd, 'err');
+print('اكتب help للأوامر المتاحة', 'warn');
+}
+}else if(e.key === 'ArrowUp'){
+e.preventDefault();
+if(histIndex > 0){ histIndex--; cmdInput.value = history[histIndex] || '' }
+}else if(e.key === 'ArrowDown'){
+e.preventDefault();
+if(histIndex < history.length - 1){ histIndex++; cmdInput.value = history[histIndex] || '' }
+else{ histIndex = history.length; cmdInput.value = '' }
+}
 });
-grid.innerHTML = html;
-}
 
-function getTimeAgo(dateStr){
-var d = new Date(dateStr);
-var now = new Date();
-var diff = Math.floor((now - d) / 1000);
-if(isNaN(diff) || diff < 0) return 'الآن';
-if(diff < 60) return 'الآن';
-if(diff < 3600) return Math.floor(diff/60) + ' دقيقة';
-if(diff < 86400) return Math.floor(diff/3600) + ' ساعة';
-return Math.floor(diff/86400) + ' يوم';
+// الساعة
+function tick(){
+var d = new Date();
+getEl('clock').textContent = d.toLocaleTimeString('en-GB');
 }
+setInterval(tick, 1000);
+tick();
 
-function updateTicker(){
-var top = allNews.slice(0, 10).map(function(n){ return '⚡ ' + n.title; }).join('    ●    ');
-document.getElementById('tickerContent').textContent = top || 'لا توجد أخبار عاجلة';
-}
+// الترحيب
+welcome();
+
+// نقر الصفحة يفعّل الإدخال
+document.body.addEventListener('click', function(){
+cmdInput.focus();
+});
+cmdInput.focus();
+
+// حجم Canvas
+window.addEventListener('resize', function(){
+var c = getEl('matrixCanvas');
+c.width = window.innerWidth;
+c.height = window.innerHeight;
+});
 </script>
 
 </body>
