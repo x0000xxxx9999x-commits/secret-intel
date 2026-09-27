@@ -1,230 +1,465 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>خفاجي ڪيمز</title>
-  <!-- استدعاء خط Cairo من Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    /* إعدادات عامة */
-    body {
-      font-family: 'Cairo', sans-serif;
-      margin: 0;
-      background: #fff;
-      color: #333;
-      line-height: 1.6;
-    }
-    h1, h2, h3 {
-      color: #ff1b8d;
-    }
-    a { text-decoration: none; color: inherit; }
-    button {
-      background: linear-gradient(45deg, #ff1b8d, #00e5ff);
-      border: none;
-      padding: 10px 20px;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-      transition: 0.3s;
-    }
-    button:hover { transform: scale(1.05); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    /* الهيدر */
-    header {
-      position: sticky;
-      top: 0;
-      background: #fff;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      z-index: 1000;
-    }
-    nav a {
-      margin: 0 10px;
-      font-weight: bold;
-      color: #00ff87;
-    }
-    .coins {
-      font-size: 18px;
-      color: #ff6b00;
-    }
+<title>خفاجي ڪيمز</title>
 
-    /* قسم Hero */
-    .hero {
-      text-align: center;
-      padding: 50px 20px;
-      background: linear-gradient(135deg, #ffee00, #00e5ff);
-      color: #000;
-    }
-    .hero h1 { font-size: 40px; }
-    .hero p { font-size: 18px; }
+https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap
 
-    /* الأقسام */
-    section {
-      padding: 40px 20px;
-      border-bottom: 1px solid #eee;
-    }
-    .videos, .games, .stories, .tools, .downloads, .about, .follow {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: #f9f9f9;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-    .card:hover { transform: translateY(-5px); }
+<style>
 
-    /* الفوتر */
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #ff1b8d;
-      color: #fff;
-    }
+:root{
+--bg:#050816;
+--card:#0f172a;
+--pink:#ff1b8d;
+--cyan:#00e5ff;
+--green:#00ff87;
+--yellow:#ffee00;
+--orange:#ff6b00;
+--white:#ffffff;
+}
 
-    /* البوت الذكي */
-    .chat-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #00ff87;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
-    .chat-box {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      width: 300px;
-      height: 400px;
-      background: #fff;
-      border: 2px solid #00e5ff;
-      border-radius: 10px;
-      display: none;
-      flex-direction: column;
-    }
-    .chat-messages {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-    }
-    .chat-input {
-      display: flex;
-    }
-    .chat-input input {
-      flex: 1;
-      border: none;
-      padding: 10px;
-    }
-    .chat-input button {
-      border-radius: 0;
-    }
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Cairo',sans-serif;
+}
 
-    /* Responsive */
-    @media(max-width:600px){
-      .hero h1 { font-size: 28px; }
-    }
-  </style>
+html{
+scroll-behavior:smooth;
+}
+
+body{
+background:var(--bg);
+color:white;
+overflow-x:hidden;
+}
+
+/* خلفية متحركة */
+
+body::before{
+content:"";
+position:fixed;
+inset:0;
+background:
+radial-gradient(circle at 20% 30%, rgba(255,27,141,.15), transparent 20%),
+radial-gradient(circle at 80% 20%, rgba(0,229,255,.15), transparent 25%),
+radial-gradient(circle at 50% 80%, rgba(0,255,135,.12), transparent 25%);
+z-index:-1;
+animation:bgMove 10s infinite alternate;
+}
+
+@keyframes bgMove{
+from{
+transform:scale(1);
+}
+to{
+transform:scale(1.2);
+}
+}
+
+/* الهيدر */
+
+header{
+position:fixed;
+top:15px;
+right:50%;
+transform:translateX(50%);
+width:95%;
+max-width:1400px;
+height:75px;
+
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(20px);
+
+border:1px solid rgba(255,255,255,.1);
+
+border-radius:20px;
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:0 25px;
+
+z-index:9999;
+}
+
+.logo{
+font-size:28px;
+font-weight:800;
+
+background:linear-gradient(
+90deg,
+var(--pink),
+var(--cyan)
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+nav{
+display:flex;
+gap:25px;
+}
+
+nav a{
+color:white;
+text-decoration:none;
+font-weight:700;
+transition:.3s;
+position:relative;
+}
+
+nav a:hover{
+color:var(--cyan);
+}
+
+nav a::after{
+content:"";
+position:absolute;
+bottom:-6px;
+right:0;
+width:0%;
+height:2px;
+background:var(--cyan);
+transition:.3s;
+}
+
+nav a:hover::after{
+width:100%;
+}
+
+.coin-box{
+padding:10px 20px;
+
+background:rgba(255,255,255,.05);
+
+border:1px solid rgba(255,255,255,.07);
+
+border-radius:15px;
+
+box-shadow:0 0 30px rgba(255,238,0,.15);
+}
+
+.coin-number{
+color:var(--yellow);
+font-weight:800;
+}
+
+/* Hero */
+
+.hero{
+
+min-height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+padding:150px 20px 100px;
+text-align:center;
+}
+
+.hero-container{
+max-width:1000px;
+}
+
+.badge{
+
+display:inline-block;
+
+padding:10px 20px;
+
+border-radius:50px;
+
+background:rgba(255,255,255,.06);
+
+border:1px solid rgba(255,255,255,.1);
+
+margin-bottom:25px;
+
+color:var(--cyan);
+}
+
+.hero h1{
+
+font-size:75px;
+
+line-height:1.2;
+
+font-weight:800;
+
+margin-bottom:20px;
+}
+
+.glow{
+
+background:
+linear-gradient(
+90deg,
+var(--pink),
+var(--cyan),
+var(--green)
+);
+
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+
+}
+
+.hero p{
+
+font-size:22px;
+color:#cbd5e1;
+
+max-width:700px;
+margin:auto;
+
+margin-bottom:40px;
+}
+
+.hero-buttons{
+
+display:flex;
+justify-content:center;
+flex-wrap:wrap;
+
+gap:15px;
+}
+
+.btn{
+
+padding:15px 35px;
+
+border:none;
+
+border-radius:15px;
+
+cursor:pointer;
+
+font-size:18px;
+font-weight:700;
+
+transition:.35s;
+}
+
+.btn-primary{
+
+background:
+linear-gradient(
+135deg,
+var(--pink),
+var(--cyan)
+);
+
+color:white;
+
+box-shadow:
+0 0 30px rgba(255,27,141,.4);
+}
+
+.btn-primary:hover{
+
+transform:translateY(-5px);
+
+box-shadow:
+0 0 50px rgba(255,27,141,.8);
+
+}
+
+.btn-secondary{
+
+background:transparent;
+color:white;
+
+border:2px solid var(--cyan);
+}
+
+.btn-secondary:hover{
+
+background:var(--cyan);
+color:black;
+
+transform:translateY(-5px);
+}
+
+/* بطاقات الإحصائيات */
+
+.stats{
+
+margin-top:70px;
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+
+gap:20px;
+}
+
+.stat-card{
+
+background:var(--card);
+
+padding:25px;
+
+border-radius:20px;
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.4s;
+}
+
+.stat-card:hover{
+
+transform:translateY(-7px);
+
+box-shadow:
+0 0 40px rgba(0,229,255,.2);
+
+}
+
+.stat-number{
+
+font-size:35px;
+
+font-weight:800;
+
+margin-bottom:8px;
+
+color:var(--green);
+}
+
+.stat-title{
+color:#94a3b8;
+}
+
+/* جوال */
+
+@media(max-width:900px){
+
+header{
+height:auto;
+padding:15px;
+flex-wrap:wrap;
+gap:15px;
+}
+
+nav{
+overflow:auto;
+width:100%;
+justify-content:center;
+}
+
+.hero h1{
+font-size:42px;
+}
+
+.hero p{
+font-size:18px;
+}
+
+}
+
+</style>
 </head>
+
 <body>
 
-  <!-- الهيدر -->
-  <header>
-    <div class="logo">🎮 خفاجي ڪيمز</div>
-    <nav>
-      <a href="#hero">الرئيسية</a>
-      <a href="#reward">المكافأة</a>
-      <a href="#videos">الفيديوهات</a>
-      <a href="#play">العب</a>
-      <a href="#quiz">اختبار</a>
-      <a href="#learn">تعلّم RP</a>
-      <a href="#stories">قصص</a>
-      <a href="#tools">أدوات</a>
-      <a href="#dashboard">لوحتي</a>
-    </nav>
-    <div class="coins">🪙 <span id="coinCount">0</span></div>
-  </header>
+<header>
 
-  <!-- قسم Hero -->
-  <section class="hero" id="hero">
-    <h1>مرحباً بك في خفاجي ڪيمز</h1>
-    <p>عالم ألعاب RP على الموبايل بانتظارك!</p>
-    <button onclick="alert('ابدأ اللعب الآن!')">ابدأ اللعب الآن</button>
-  </section>
+<div class="logo">
+🎮 خفاجي ڪيمز
+</div>
 
-  <!-- قسم المكافأة اليومية -->
-  <section id="reward">
-    <h2>🎁 المكافأة اليومية</h2>
-    <p>سلسلة 7 أيام - استلم مكافأتك!</p>
-    <button onclick="claimReward()">استلم مكافأة اليوم</button>
-    <p>سلسلتك الحالية: <span id="streak">0</span> أيام</p>
-  </section>
+<nav>
 
-  <!-- قسم الفيديوهات -->
-  <section id="videos">
-    <h2>📺 الفيديوهات</h2>
-    <div class="videos">
-      <div class="card">
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>
-        <h3>فيديو 1</h3>
-        <p>شرح عن NEWRP</p>
-        <a href="article1.html">اقرأ المقال</a>
-      </div>
-      <div class="card">
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>
-        <h3>فيديو 2</h3>
-        <p>جواز الخدمة العسكرية</p>
-        <a href="article2.html">اقرأ المقال</a>
-      </div>
-      <div class="card">
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>
-        <h3>فيديو 3</h3>
-        <p>الانضمام للسيرفرات العربية</p>
-        <a href="article3.html">اقرأ المقال</a>
-      </div>
-    </div>
-  </section>
+<a href="#">الرئيسية</a>
+>الفيديوهات</a>
+>الألعاب</a>
+>تعلم RP</a>
+>القصص</a>
+>
+<a href="#">لوحتي</a>
 
-  <!-- قسم الأدوات -->
-  <section id="tools">
-    <h2>🛠️ الأدوات</h2>
-    <div class="tools">
-      <div class="card">
-        <h3>صانع بطاقة RP</h3>
-        <input id="rpName" placeholder="الاسم">
-        <input id="rpJob" placeholder="الوظيفة">
-        <input id="rpAge" placeholder="العمر">
-        <input id="rpCountry" placeholder="الدولة">
-        <button onclick="makeCard()">إنشاء بطاقة</button>
-        <div id="rpCard"></div>
-      </div>
-      <div class="card">
-        <h3>قاموس RP</h3>
-        <input id="searchTerm" placeholder="ابحث...">
-        <ul id="dictionary"></ul>
-      </div>
-    </div>
-  </section>
+v class="coin-box">
+🪙 <span class="coin-number">2500</span>
+</div>
 
-  <!-- لوحة الإدارة -->
-  <section id="dashboard">
-    <h2>📊 لوحتي</h2>
-    <p>إجمالي الزوار: <span id="globalVisits">0</span></p>
-    <p>زياراتك الشخصية: <span id="personalVisits">0</span></p>
-    <p>رصيدك: <span id="coinCount2">0</span></p>
-    <p>سلسلتك: <span id="streak
+</header>
+
+<section class="hero">
+
+<div class="hero-container">
+
+<div class="badge">
+🔥 منصة ألعاب RP العربية
+</div>
+
+<h1>
+
+مرحباً بك في
+
+<span class="glow">
+خفاجي ڪيمز
+</span>
+
+</h1>
+
+<p>
+
+تعلم أساسيات RP، شاهد الفيديوهات،
+اجمع العملات، افتح الصناديق،
+واكتشف عالم ألعاب الحياة الواقعية
+بطريقة تفاعلية ممتعة.
+
+</p>
+
+<div class="hero-buttons">
+
+<button class="btn btn-primary">
+ابدأ المغامرة
+</button>
+
+<button class="btn btn-secondary">
+شاهد الفيديوهات
+</button>
+
+</div>
+
+<div class="stats">
+
+<div class="stat-card">
+<div class="stat-number">12K+</div>
+<div class="stat-title">لاعب</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">5K+</div>
+<div class="stat-title">مكافأة</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">120+</div>
+<div class="stat-title">قصة RP</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number">24/7</div>
+<div class="stat-title">فعاليات</div>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</body>
+</html>
